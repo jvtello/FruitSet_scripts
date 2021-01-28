@@ -1,0 +1,42 @@
+#Estimation of correlation coefficients between traits using the corrplot R package
+
+install.packages("tidyverse") 
+library(tidyverse)
+install.packages("corrr") 
+library(corrr)
+install.packages("corrplot") 
+library(corrplot)
+install.packages("RColorBrewer") 
+library(RColorBrewer)
+
+traits <- read.delim(#INDICATE FILE DIRECTORY, 
+	na.strings = NA)
+
+mydata <- traits %>% select(NB_2011, NB_2012, NB_2013, NB_2015, NB_2016, NB_2017, NF_2015, NF_2016, NF_2017, FS_2015, FS_2016, FS_2017, MI_2015, MI_2016, MI_2017, CI_2015,  CI_2016, CI_2017, NS_2011, NS_2012, NS_2013)
+
+head(mydata, 3)
+
+M <- cor(mydata, use = "pairwise.complete.obs", method="pearson")
+
+cor.mtest <- function(mat, conf.level = 0.95){
+     mat <- as.matrix(mat)
+     n <- ncol(mat)
+     p.mat <- lowCI.mat <- uppCI.mat <- matrix(NA, n, n)
+     diag(p.mat) <- 0
+     diag(lowCI.mat) <- diag(uppCI.mat) <- 1
+     for(i in 1:(n-1)){
+         for(j in (i+1):n){
+             tmp <- cor.test(mat[,i], mat[,j], conf.level = conf.level)
+             p.mat[i,j] <- p.mat[j,i] <- tmp$p.value
+             lowCI.mat[i,j] <- lowCI.mat[j,i] <- tmp$conf.int[1]
+             uppCI.mat[i,j] <- uppCI.mat[j,i] <- tmp$conf.int[2]
+         }
+     }
+     return(list(p.mat, lowCI.mat, uppCI.mat))
+ }
+ 
+res1 <- cor.mtest(mydata,0.95)
+
+corrplot(M, method = "square", p.mat = res1[[1]], insig = "blank", tl.cex = 1, tl.col = "black", order="hclust", col=brewer.pal(n=8, name="RdBu"))
+
+M %>% network_plot(min_cor =.20, legend = FALSE, colours = c("firebrick", "white", "dodgerblue4"), repel = TRUE, curved = FALSE)

@@ -1,0 +1,37 @@
+#Estimation of Variance Components following the MINQUE method in SPSS v22
+
+VARCOMP SN BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE
+
+  VARCOMP MI BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE
+  
+  VARCOMP FN BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE
+  
+  VARCOMP FS BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE
+  
+  VARCOMP CI BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE
+  
+  VARCOMP BN BY Gen Year 
+  /RANDOM=Gen Year
+  /METHOD=Minque (1)
+  /DESIGN
+  /INTERCEPT=INCLUDE

@@ -1,0 +1,34 @@
+#Calculation of BLUP values using the lmer function of the lme4 R package
+
+## Genotypes as random variables
+
+form <- paste0(response, " ~ 1",
+               " + season",
+               " + plot",
+               " + (1|id)", 
+               " + (1|id:year)"
+               )
+globmod.ml <- lme4::lmer(as.formula(form), data=dat.noNA,
+                         na.action=na.fail, REML=FALSE)
+system.time(
+    allmod.sel <- suppressMessages(dredge(globmod.ml)))
+bestmod.ml <- get.models(allmod.sel, subset = 1)[[1]]
+formula(bestmod.ml)
+bestmod.reml <- lme4::lmer(formula=formula(bestmod.ml), data=dat.noNA,
+                           na.action=na.fail, REML=TRUE)
+
+summary(bestmod.ml)
+(vc.ml <- as.data.frame(VarCorr(bestmod.ml)))
+summary(bestmod.reml)
+(vc.reml <- as.data.frame(VarCorr(bestmod.reml)))
+
+ genovals <- data.frame(berries.geno.blup=rep(NA, nlevels(dat.noNA$id)),
+                        berries.geno.var.blup=NA,
+                        row.names=levels(dat.noNA$id))
+ genovals[names(geno.blups), "berries.geno.blup"] <- geno.blups
+ genovals[names(geno.var.blups), "berries.geno.var.blup"] <- geno.var.blups
+
+p2f <- paste0(results.dir, "#file name")
+write.table(x=genovals, file=p2f, quote=FALSE, sep="\t")
+tools::md5sum(path.expand(p2f))
+file.info(p2f)$mtime
